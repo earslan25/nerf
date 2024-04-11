@@ -1,2 +1,2 @@
 # Snerfs
-Implementation of paper: Representing Scenes as Neural Radiance Fields for View Synthesis
+Implementation of paper: Representing Scenes as Neural Radiance Fields for View Synthesis.
