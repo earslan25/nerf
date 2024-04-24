@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 
 def get_device():
@@ -30,8 +31,15 @@ def apply_metric(pred, target, metric):
     return metric(pred, target)
 
 
-def save_model(model, path):
-    torch.save(model.state_dict(), path)
+def save_model(epoch, model, optimizer, path):
+    torch.save(
+        {
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+        },
+        path
+    )
 
 
 def load_model(model, path):
