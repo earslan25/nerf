@@ -10,3 +10,16 @@ conda create --name Snerfs python=3.9
 conda activate Snerfs
 pip install -r requirements.txt # Change the last line in requirements.txt for gpu training
 ```
+
+## How to run
+Train
+```
+python train_nerf.py
+```
+
+Test
+```
+python train_nerf.py --test
+```
+
+Change config in configs/default.json
