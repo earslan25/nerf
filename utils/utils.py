@@ -1,6 +1,6 @@
 import torch
 import numpy as np
-
+from torchmetrics.functional.image import structural_similarity_index_measure as lightning_ssim
 
 def get_device():
     device = 'cpu'
@@ -23,8 +23,7 @@ def psnr(pred, target):
 
 def ssim(pred, target):
     # ssim metric
-    # TODO implement SSIM
-    pass
+    return lightning_ssim(pred,target)
 
 
 def apply_metric(pred, target, metric):

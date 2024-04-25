@@ -3,5 +3,4 @@
     "data_path": "data/tiny_nerf_data.npz",
     "out_dir": "out/tiny_nerf_data",
     "model_path": "example_output/ckpt/model.ckpt",
-    "metric": "psnr"
-}
+    "metric": "ssim"}

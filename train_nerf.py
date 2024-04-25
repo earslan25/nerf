@@ -91,11 +91,19 @@ if __name__ == '__main__':
 
     # test
     NerfRenderer.eval()
+    total_metric = 0
     for idx, (img, pose) in enumerate(zip(test_images, test_poses)):
         rays = NerfRenderer.get_rays(preprocessor.H, preprocessor.W, preprocessor.focal, pose.to(device))
         rgb, depth = NerfRenderer(rays)
-
         visualize.save_result_comparison(rgb.detach().cpu().numpy(), img.numpy(), os.path.join(args.out_dir, 'test_results', f"{idx}.jpg"))
+
+        rgb = torch.permute(rgb.unsqueeze(0), (0, 3, 1, 2))
+        img = torch.permute(img.unsqueeze(0), (0, 3, 1, 2))
+        metric_score = metric(rgb,img)
+        total_metric += metric_score
+
+    average_metric = total_metric/(idx+1)
+    print(f'Final Validation: {args.metric}: {average_metric.item()}')
 
 
 
