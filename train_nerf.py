@@ -18,12 +18,27 @@ def parsarguments():
     parser.add_argument(
         "--test", default=False, action="store_true"
     )
+    parser.add_argument(
+        "--num_epochs", type=int, default=15
+    )
+    parser.add_argument(
+        "--data_path", type=str, default="data/tiny_nerf_data.npz"
+    )
+    parser.add_argument(
+        "--out_dir", type=str, default="out/tiny_nerf_data"
+    )
+    parser.add_argument(
+        "--model_path", type=str, default=None, nargs="?"
+    )
+    parser.add_argument(
+        "--metric", type=str, default=["psnr", "ssim"], nargs="*"
+    )
     args = parser.parse_args()
+    print(args.metric)
     return args
 
 
 if __name__ == '__main__':
-    # TODO add argparse
     device = utils.get_device()
     print("Using device: ", device)
 
