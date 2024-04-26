@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
     if not args.test:
         NerfRenderer.train()
-        for epoch in tqdm(range(start_epoch, args.num_epochs)):
+        for epoch in tqdm(range(args.num_epochs)):
             for img, pose in zip(train_images, train_poses):
                 optimizer.zero_grad()
                 rays = NerfRenderer.get_rays(preprocessor.H, preprocessor.W, preprocessor.focal, pose.to(device))
