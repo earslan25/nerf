@@ -10,12 +10,7 @@ from utils import visualize, utils
 from renderer.nerf_renderer import NRFRenderer
 from tqdm import tqdm
 
-
-if __name__ == '__main__':
-    # TODO add argparse
-    device = utils.get_device()
-    print("Using device: ", device)
-    
+def parsarguments():
     parser = argparse.ArgumentParser(description="nerf")
     parser.add_argument(
         "--config", type=str, default="configs/default.json", help="Config file"
@@ -24,7 +19,16 @@ if __name__ == '__main__':
         "--test", default=False, action="store_true"
     )
     args = parser.parse_args()
+    return args
 
+
+if __name__ == '__main__':
+    # TODO add argparse
+    device = utils.get_device()
+    print("Using device: ", device)
+
+    args = parsarguments()
+    
     if args.config is not None:
         config = json.load(open(args.config, "r"))
         for key in config:
@@ -43,12 +47,16 @@ if __name__ == '__main__':
     # visualize.plot_images(test_images[1].numpy())
 
     # Set metric
-    if args.metric == "psnr":
-        metric = utils.psnr
-    elif args.metric == "ssim":
-        metric = utils.ssim
-    else:
-        raise ValueError(f"Unsupported metric '{args.metric}'. Expected 'psnr' or 'ssim'.")
+    metric_fns = {}
+    metric_dict = {}
+    if "psnr" in args.metric:
+        metric_dict["psnr"] = 0
+        metric_fns["psnr"] = utils.psnr
+    if "ssim" in args.metric:
+        metric_dict["ssim"] = 0
+        metric_fns["ssim"] = utils.ssim
+    #else:
+        #raise ValueError(f"Unsupported metric '{args.metric}'. Expected 'psnr' or 'ssim'.")
 
     # pred = test_images[1]
     # target = train_images[1]
@@ -99,11 +107,15 @@ if __name__ == '__main__':
 
         rgb = torch.permute(rgb.unsqueeze(0), (0, 3, 1, 2))
         img = torch.permute(img.unsqueeze(0), (0, 3, 1, 2))
-        metric_score = metric(rgb,img)
-        total_metric += metric_score
+        for metric_name, metric_fn in metric_fns.items():
+            metric_score = metric_fn(rgb,img)
+            metric_dict[metric_name] += metric_score
 
-    average_metric = total_metric/(idx+1)
-    print(f'Final Validation: {args.metric}: {average_metric.item()}')
+    score_string = ""
+    for name, score in metric_dict.items():
+        score_string += " " + name + ": " + "{:.2f}".format(score.item() / (idx+1)) 
+
+    print(f'Final Validation: {score_string}')
 
 
 

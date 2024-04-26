@@ -89,6 +89,7 @@ class NRFRenderer(torch.nn.Module):
         t_vals = torch.linspace(self.near, self.far, self.num_samples, device=ray_origins.device)
         if self.random_samples:
             # TODO
+            
             pass
         # add 3D dimension to the origins and directions and find sample points
         points = ray_origins[..., None, :] + t_vals[..., :, None] * ray_directions[..., None, :]
