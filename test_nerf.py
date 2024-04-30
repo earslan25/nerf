@@ -28,7 +28,6 @@ def parsarguments():
         "--metric", type=str, default=["psnr", "ssim"], nargs="*"
     )
     args = parser.parse_args()
-    print(args.metric)
     return args
 
 
@@ -76,7 +75,7 @@ if __name__ == '__main__':
     start_epoch = 0
 
     # Load saved model
-    if hasattr(args, 'model_path'):
+    if args.model_path:
         checkpoint = torch.load(args.model_path, map_location=device)
         NerfRenderer.load_state_dict(checkpoint["model_state_dict"])
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
