@@ -23,3 +23,7 @@ python train_nerf.py --test
 ```
 
 Change config in configs/default.json
+
+## Dataset
+
+Refer to https://github.com/maximeraafat/BlenderNeRF
