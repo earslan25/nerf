@@ -1,5 +1,6 @@
 from pymel.core import *
 import json
+import sys.numpy 
 
 #HOW TO GENERATE JSON DATA 
 # open maya script editor and drag in this python file in the python tab at the bottom.
@@ -21,22 +22,18 @@ def print_camera_info(all_cams, start_frame, end_frame):
             print("frame: ", frame)
             currentTime(frame, edit=True)
             frame_number = str(frame)
-            if len(str(frame)) == 1:
-                frame_number = str(0) + str(frame)
             
+            camera_matrix = camera.worldMatrix[0].get(t=frame)
+            flattened_matrix = []
             
-            mat1 = camera.projectionMatrix()
-            mat2 = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-            for x in range(4):
-                for y in range(4):
-                    mat2[x][y] = mat1[x][y]
-                
-            print("matrix: ", mat2)
-            
+            for i in range(4):
+                for j in range(4):
+                    flattened_matrix.append(camera_matrix[i][j])
+
         
             id = str(curr_cam) + frame_number
             frame_data = {
-                'projection_matrix': mat2,
+                'projection_matrix': flattened_matrix,
                 'focal_length': camera.getFocalLength()
             }
             data[int(id)] = frame_data
@@ -46,10 +43,7 @@ def print_camera_info(all_cams, start_frame, end_frame):
     with open(output_file, 'w') as file:
         json.dump(data, file, indent=4)            
         
-        translation = cmds.getAttr(depNodeName + '.translate')
-        rotation = cmds.getAttr(depNodeName + '.rotate')
-        
-        print(id + "," + str(translation[0][0]) + "," + str(translation[0][1]) + "," + str(translation[0][2]) + "," + str(rotation[0][0]) + "," + str(rotation[0][1]) + "," + str(rotation[0][2]))
+        # print(id + "," + str(translation[0][0]) + "," + str(translation[0][1]) + "," + str(translation[0][2]) + "," + str(rotation[0][0]) + "," + str(rotation[0][1]) + "," + str(rotation[0][2]))
 
 #EXAMPLE: prints all info for all 8 cameras in sofa.mb
 all_cameras = [0, 1, 2, 3, 4, 5, 6]
