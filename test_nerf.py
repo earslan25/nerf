@@ -6,6 +6,7 @@ import imageio
 import os
 
 from preprocess import Preprocessor
+from preprocess_folder import PreprocessorFolder
 from utils import visualize, utils
 from renderer.nerf_renderer import NRFRenderer
 from tqdm import tqdm
@@ -28,6 +29,7 @@ def parsarguments():
         "--metric", type=str, default=["psnr", "ssim"], nargs="*"
     )
     args = parser.parse_args()
+
     return args
 
 
@@ -48,11 +50,14 @@ if __name__ == '__main__':
     # ---------------------------------------------------------------------
 
     # Load Data
-    preprocessor = Preprocessor()
-    preprocessor.load_new_data(args.data_path)
-    split_params = (True, 100)
-    train_images, train_poses, test_images, test_poses = preprocessor.split_data(split_params, randomize=False)
-    # visualize.plot_images(test_images[1].numpy())
+    if os.path.isfile(args.data_path):
+        preprocessor = Preprocessor()
+        preprocessor.load_new_data(args.data_path)
+        split_params = (True, 100)
+        train_images, train_poses, test_images, test_poses = preprocessor.split_data(split_params, randomize=False)
+    else:
+        preprocessor = PreprocessorFolder()
+        train_images, train_poses = preprocessor.load_train_data(args.data_path)
 
     # Set metric
     metric_fns = {}
@@ -63,12 +68,8 @@ if __name__ == '__main__':
     if "ssim" in args.metric:
         metric_dict["ssim"] = 0
         metric_fns["ssim"] = utils.ssim
-    #else:
-        #raise ValueError(f"Unsupported metric '{args.metric}'. Expected 'psnr' or 'ssim'.")
-
-    # pred = test_images[1]
-    # target = train_images[1]
-    # print(utils.apply_metric(pred, target, metric))
+    else:
+        raise ValueError(f"Unsupported metric '{args.metric}'. Expected 'psnr' or 'ssim'.")
 
     NerfRenderer = NRFRenderer().to(device)
     optimizer = torch.optim.Adam(NerfRenderer.parameters(), lr=1e-3)
@@ -81,15 +82,15 @@ if __name__ == '__main__':
         optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         start_epoch = checkpoint['epoch'] + 1
     else:
-        print("Model path required for testing")
-        assert(False)
+        raise ValueError("Model path required for testing.")
 
     # test
     NerfRenderer.eval()
     total_metric = 0
     for idx, (img, pose) in enumerate(zip(test_images, test_poses)):
         rays = NerfRenderer.get_rays(preprocessor.H, preprocessor.W, preprocessor.focal, pose.to(device))
-        rgb, depth = NerfRenderer(rays)
+        with torch.no_grad():
+            rgb, depth = NerfRenderer(rays)
         visualize.save_result_comparison(rgb.detach().cpu().numpy(), img.numpy(), os.path.join(args.out_dir, 'test_results', f"{idx}.jpg"))
 
         rgb = torch.permute(rgb.unsqueeze(0), (0, 3, 1, 2))
@@ -103,11 +104,3 @@ if __name__ == '__main__':
         score_string += " " + name + ": " + "{:.2f}".format(score.item() / (idx+1)) 
 
     print(f'Final Validation: {score_string}')
-
-
-
-
-
-
-
-

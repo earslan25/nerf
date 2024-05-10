@@ -1,15 +1,12 @@
 import torch
 
 
-# TODO possibly fix issues and look into adding other features
 class NRFModel(torch.nn.Module):
     def __init__(
             self,
             n_posenc_xyz=6,
-            # n_posenc_dir=4,
             output_ch=4,
             n_hidden_xyz=256,
-            # n_hidden_dir=128,
             n_layers_xyz=8,
             skips={4},
             batch_chunk=1024*32
@@ -18,13 +15,9 @@ class NRFModel(torch.nn.Module):
 
         self.posenc_xyz = 3 + 3 * 2 * n_posenc_xyz
         self.n_posenc_xyz = n_posenc_xyz
-        # self.posenc_dir = 3 + 3 * 2 * n_posenc_dir
-        # self.n_posenc_dir = n_posenc_dir
         self.output_ch = output_ch
         self.hidden_xyz = n_hidden_xyz
-        # self.hidden_dir = n_hidden_dir
         self.layers_xyz = n_layers_xyz
-        # self.layers_dir = n_layers_dir
         self.skips = skips
         self.batch_chunk = batch_chunk
 

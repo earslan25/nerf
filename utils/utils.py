@@ -2,6 +2,7 @@ import torch
 import numpy as np
 from torchmetrics.functional.image import structural_similarity_index_measure as lightning_ssim
 
+
 def get_device():
     device = 'cpu'
     if torch.cuda.is_available():

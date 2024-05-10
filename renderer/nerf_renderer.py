@@ -3,22 +3,16 @@ import torch
 from model.nerf_model import NRFModel
 
 
-# TODO possibly fix issues and look into adding other features
 class NRFRenderer(torch.nn.Module):
     def __init__(
             self,
-            # for the renderer
-            # TODO
             num_samples=64,
             near=2.0,
             far=6.0,
             random_samples=False,
-            # for the model
             n_posenc_xyz=6,
-            # n_posenc_dir=4,
             output_ch=4,
             n_hidden_xyz=256,
-            # n_hidden_dir=128,
             n_layers_xyz=8,
             skips={4},
             batch_chunk=1024 * 32
@@ -43,12 +37,10 @@ class NRFRenderer(torch.nn.Module):
             batch_chunk=batch_chunk
         )
 
-        # TODO: Initialize the renderer and do volume rendering
-
         # pipeline for the renderer:
         # 1. take in rays or create rays from H, W, focal depending on how the renderer is initialized
         # 2. sample points along the rays
-        # 3. get the rgb and density values from the model
+        # 3. get the rgb and density values from the mlp with the xyz points model
         # 4. do volume rendering to get the final image
 
     def get_rays(self, H, W, focal, pose):
@@ -83,14 +75,11 @@ class NRFRenderer(torch.nn.Module):
     def sample_points(self, ray_origins, ray_directions):
         """
         Sample points along the rays
-        :param rays: rays
+        :param ray_origins: ray origins
+        :param ray_directions: ray directions
         :return: points and t values
         """
         t_vals = torch.linspace(self.near, self.far, self.num_samples, device=ray_origins.device)
-        if self.random_samples:
-            # TODO
-            
-            pass
         # add 3D dimension to the origins and directions and find sample points
         points = ray_origins[..., None, :] + t_vals[..., :, None] * ray_directions[..., None, :]
 

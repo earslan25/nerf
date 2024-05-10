@@ -18,6 +18,7 @@ def plot_images(images):
         plt.title(f'Image {i}')
         plt.show()
 
+
 # ground_truth and prediction must have the same size
 def save_result_comparison(ground_truth, prediction, path):
     ground_truth = Image.fromarray((ground_truth * 255).astype(np.uint8))
@@ -32,5 +33,3 @@ def save_result_comparison(ground_truth, prediction, path):
     new_img.paste(prediction, (ground_truth.width, 0))
 
     new_img.save(path)
-
-# TODO add more visualization functions like plotting accuracy, loss, etc.

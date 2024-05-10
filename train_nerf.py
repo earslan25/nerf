@@ -32,7 +32,7 @@ def parsarguments():
         "--metric", type=str, default=["psnr", "ssim"], nargs="*"
     )
     args = parser.parse_args()
-    print(args.metric)
+
     return args
 
 
@@ -71,10 +71,8 @@ if __name__ == '__main__':
     if "ssim" in args.metric:
         metric_dict["ssim"] = 0
         metric_fns["ssim"] = utils.ssim
-
-    # pred = test_images[1]
-    # target = train_images[1]
-    # print(utils.apply_metric(pred, target, metric))
+    else:
+        raise ValueError(f"Unsupported metric '{args.metric}'. Expected 'psnr' or 'ssim'.")
 
     NerfRenderer = NRFRenderer().to(device)
     optimizer = torch.optim.Adam(NerfRenderer.parameters(), lr=1e-3)
@@ -88,20 +86,17 @@ if __name__ == '__main__':
         start_epoch = checkpoint['epoch'] + 1
         print(f"Continue training from epoch {start_epoch}")
 
-
     NerfRenderer.train()
     for epoch in tqdm(range(start_epoch, args.num_epochs)):
         for img, pose in zip(train_images, train_poses):
             optimizer.zero_grad()
+
             rays = NerfRenderer.get_rays(preprocessor.H, preprocessor.W, preprocessor.focal, pose.to(device))
             rgb, depth = NerfRenderer(rays)
 
             loss = utils.mse_loss(rgb, img.to(device))
 
             loss.backward()
-
-            # for param in NerfRenderer.parameters():
-            #     print(param.grad)
 
             optimizer.step()
 
@@ -118,7 +113,8 @@ if __name__ == '__main__':
     total_metric = 0
     for idx, (img, pose) in enumerate(zip(test_images, test_poses)):
         rays = NerfRenderer.get_rays(preprocessor.H, preprocessor.W, preprocessor.focal, pose.to(device))
-        rgb, depth = NerfRenderer(rays)
+        with torch.no_grad():
+            rgb, depth = NerfRenderer(rays)
         visualize.save_result_comparison(rgb.detach().cpu().numpy(), img.numpy(), os.path.join(args.out_dir, 'test_results', f"{idx}.jpg"))
 
         rgb = torch.permute(rgb.unsqueeze(0), (0, 3, 1, 2))
