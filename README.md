@@ -1,5 +1,5 @@
 # NeRF
-Basic implementation of paper: Representing Scenes as Neural Radiance Fields for View Synthesis. 
+Basic PyTorch implementation of paper: Representing Scenes as Neural Radiance Fields for View Synthesis. 
 
 Implemented as a final group project for Brown University's Deep Learning course. 
 
