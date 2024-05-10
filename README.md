@@ -1,5 +1,6 @@
 # NeRF
 Basic implementation of paper: Representing Scenes as Neural Radiance Fields for View Synthesis. 
+
 Implemented as a final group project for Brown University's Deep Learning course. 
 Team member github usernames: Zihan53, sylviebartusek, cintroca
 
